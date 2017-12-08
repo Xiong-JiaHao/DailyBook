@@ -11,7 +11,7 @@
         android:layout_marginBottom="40dp"
         android:gravity="center"
         android:text="计科一班班费情况"
-        android:textSize="40sp"/>
+        android:textSize="35sp"/>
 
     <LinearLayout
         android:layout_marginRight="50dp"
