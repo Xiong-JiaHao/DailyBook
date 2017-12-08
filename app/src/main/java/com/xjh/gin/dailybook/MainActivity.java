@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                         costBean.id = num++;
                         mDatabaseHelper.insertCost(costBean);
                         mCostBeanList.add(costBean);
-                        mAdapter.notifyDataSetChanged();//问题
+                        mAdapter.notifyDataSetChanged();
                     }
                 });
                 builder.setNegativeButton("Cancel", null);
