@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
         android:gravity="center"
-        android:text="计科一班班费情况(待更新）"
+        android:text="计科一班班费情况"
         android:textSize="40sp"/>
 
     <LinearLayout
@@ -25,7 +25,7 @@
             android:textSize="30sp"
             android:text="余额:"/>
         <TextView
-            android:id="@+id/allmoney"
+            android:id="@+id/id_Allmoney"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="30sp"
@@ -46,7 +46,7 @@
             android:textSize="30sp"
             android:text="收入:"/>
         <TextView
-            android:id="@+id/income"
+            android:id="@+id/id_Income"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="30sp"
@@ -67,7 +67,7 @@
             android:textSize="30sp"
             android:text="支出:"/>
         <TextView
-            android:id="@+id/expenditure"
+            android:id="@+id/id_Expenditure"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="30sp"

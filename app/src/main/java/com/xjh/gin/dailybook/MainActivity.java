@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         myBroadCastReceiver = new MyBroadCastReceiver();
         filter.addAction("MY_Delete");
-        registerReceiver(myBroadCastReceiver,filter);
+        registerReceiver(myBroadCastReceiver, filter);
 
         initView();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.e("TAGS","1");
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-                View viewDialog = inflater.inflate(R.layout.new_cost_data,null);
+                View viewDialog = inflater.inflate(R.layout.new_cost_data, null);
                 final EditText title = viewDialog.findViewById(R.id.et_cost_title);
                 final EditText money = viewDialog.findViewById(R.id.et_cost_money);
                 final DatePicker date = viewDialog.findViewById(R.id.dp_cost_date);
@@ -65,16 +66,29 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         CostBean costBean = new CostBean();
-                        costBean.costTitle=title.getText().toString();
-                        costBean.costDate=date.getYear() + "-" + (date.getMonth()+1) + "-" + date.getDayOfMonth();
-                        costBean.costMoney=money.getText().toString();
-                        costBean.id=num++;
+                        costBean.costTitle = title.getText().toString();
+                        costBean.costDate = date.getYear() + "-" + (date.getMonth() + 1) + "-" + date.getDayOfMonth();
+                        String str = money.getText().toString();
+                        int cnt = 1;
+                        for (int i = 0; i < str.length(); i++) {
+                            char c = str.charAt(i);
+                            if (c == '-') {
+                                cnt = -1;
+                                continue;
+                            } else if (c == '+') {
+                                cnt = 1;
+                                continue;
+                            }
+                            costBean.costMoney = costBean.costMoney * 10 + (str.charAt(i) - '0');
+                        }
+                        costBean.costMoney *= cnt;
+                        costBean.id = num++;
                         mDatabaseHelper.insertCost(costBean);
                         mCostBeanList.add(costBean);
                         mAdapter.notifyDataSetChanged();//问题
                     }
                 });
-                builder.setNegativeButton("Cancel",null);
+                builder.setNegativeButton("Cancel", null);
                 builder.create();
                 builder.show();
             }
@@ -88,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        num=0;
+        num = 0;
         costList = findViewById(R.id.lv_view);
-        mCostBeanList=new ArrayList<>();
+        mCostBeanList = new ArrayList<>();
         mDatabaseHelper = new DatabaseHelper(this);
         initCostData();
         mAdapter = new CostListAdapter(this, mCostBeanList);
@@ -99,14 +113,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initCostData() {
         Cursor cursor = mDatabaseHelper.getAllCostData();
-        if(cursor!=null){
-            while (cursor.moveToNext()){
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
                 CostBean costBean = new CostBean();
-                costBean.costTitle=cursor.getString(cursor.getColumnIndex("cost_title"));
-                costBean.costDate=cursor.getString(cursor.getColumnIndex("cost_date"));
-                costBean.costMoney=cursor.getString(cursor.getColumnIndex("cost_money"));
-                costBean.id=cursor.getInt(cursor.getColumnIndex("id"));
-                num=Math.max(num,costBean.id);
+                costBean.costTitle = cursor.getString(cursor.getColumnIndex("cost_title"));
+                costBean.costDate = cursor.getString(cursor.getColumnIndex("cost_date"));
+                costBean.costMoney = cursor.getInt(cursor.getColumnIndex("cost_money"));
+                costBean.id = cursor.getInt(cursor.getColumnIndex("id"));
+                num = Math.max(num, costBean.id);
                 mCostBeanList.add(costBean);
             }
         }
@@ -130,11 +144,22 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_AllMoney) {
-            Intent intent = new Intent(MainActivity.this,AllMoney.class);
-            startActivity(intent);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+            View viewDialog = inflater.inflate(R.layout.all_money, null);
+            final TextView mAllmoney = viewDialog.findViewById(R.id.id_Allmoney);
+            final TextView mIncome = viewDialog.findViewById(R.id.id_Income);
+            final TextView mExpenditure = viewDialog.findViewById(R.id.id_Expenditure);
+            builder.setTitle("总金额");
+            mAllmoney.setText(mDatabaseHelper.getAllMoney()+"元");
+            mIncome.setText(mDatabaseHelper.getIncome()+"元");
+            mExpenditure.setText(mDatabaseHelper.getExpenditure()+"元");
+            builder.setView(viewDialog);
+            builder.setPositiveButton("OK",null);
+            builder.create();
+            builder.show();
             return true;
-        }
-        else if (id == R.id.action_delete) {
+        } else if (id == R.id.action_delete) {
             mDatabaseHelper.deleteAllData();
             mCostBeanList.clear();
             mAdapter.notifyDataSetChanged();
@@ -147,17 +172,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction()=="MY_Delete"){
-                int id = intent.getIntExtra("id",0);
-                Log.e("TAGS",""+id);
-                mDatabaseHelper.deleteData(id);
-                for(int i=0;i<mCostBeanList.size();i++){
-                    if(mCostBeanList.get(i).id==id){
-                        mCostBeanList.remove(i);//删除list
-                        break;
+            switch (intent.getAction()) {
+                case "MY_Delete":
+                    int id = intent.getIntExtra("id", 0);
+                    //Log.e("TAGS", "" + id);
+                    mDatabaseHelper.deleteData(id);
+                    for (int i = 0; i < mCostBeanList.size(); i++) {
+                        if (mCostBeanList.get(i).id == id) {
+                            mCostBeanList.remove(i);//删除list
+                            break;
+                        }
                     }
-                }
-                mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
+                    break;
+
+                default:
             }
         }
     }

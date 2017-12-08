@@ -23,52 +23,70 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table if not exists Class_daily("+
-                    "id integer primary key,"+
-                    "cost_title varchar,"+
-                    "cost_date varchar,"+
-                    "cost_money varchar);");
+        db.execSQL("create table if not exists Class_daily(" +
+                "id integer primary key," +
+                "cost_title varchar," +
+                "cost_date varchar," +
+                "cost_money integer);");
     }
 
-    public void insertCost(CostBean costBean){
+    public void insertCost(CostBean costBean) {
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
         ContentValues contentValues = new ContentValues();
-        contentValues.put("id",costBean.id);
-        contentValues.put(COST_TITLE,costBean.costTitle);
-        contentValues.put(COST_DATE,costBean.costDate);
-        contentValues.put(COST_MONEY,costBean.costMoney);
-        database.insert(TABLE,null,contentValues);
+        contentValues.put("id", costBean.id);
+        contentValues.put(COST_TITLE, costBean.costTitle);
+        contentValues.put(COST_DATE, costBean.costDate);
+        contentValues.put(COST_MONEY, costBean.costMoney);
+        database.insert(TABLE, null, contentValues);
     }
 
-    public Cursor getAllCostData(){
+    public Cursor getAllCostData() {
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-        return database.query(TABLE,null,null,null,null,null,"cost_date "+"ASC");//null默认查询全部,ASC顺序排练
+        return database.query(TABLE, null, null, null, null, null, "cost_date " + "ASC");//null默认查询全部,ASC顺序排练
     }
 
-    public void deleteAllData(){//一键清空
+    public void deleteAllData() {//一键清空
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-        database.delete(TABLE,null,null);//条件语句
+        database.delete(TABLE, null, null);//条件语句
     }
 
-    public void deleteData(int id){//删除
+    public void deleteData(int id) {//删除
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-        database.delete(TABLE,"id like ?",new String[]{""+id});//条件语句
+        database.delete(TABLE, "id like ?", new String[]{"" + id});//条件语句
     }
 
-    public Cursor getAllMoney(){
+    public int getAllMoney() {
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-        return database.query(TABLE,null,null,null,null,null,"cost_date "+"ASC");
+        Cursor cursor = database.query(TABLE, new String[]{"SUM(cost_money)"}, null, null, null, null, null);
+        int money = 0;
+        if(cursor!=null){
+            cursor.moveToNext();
+            money = cursor.getInt(cursor.getColumnIndex("SUM(cost_money)"));
+        }
+        return money;
     }
-//
-//    public Cursor getAllMoney(){
-//        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-//        return database.query(TABLE,null,null,null,null,null,"cost_date "+"ASC");
-//    }
-//
-//    public Cursor getAllMoney(){
-//        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
-//        return database.query(TABLE,null,null,null,null,null,"cost_date "+"ASC");
-//    }
+
+    public int getIncome(){
+        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
+        Cursor cursor = database.query(TABLE, new String[]{"SUM(cost_money)"}, "cost_money>?", new String[]{"0"}, null, null, null);
+        int money = 0;
+        if(cursor!=null){
+            cursor.moveToNext();
+            money = cursor.getInt(cursor.getColumnIndex("SUM(cost_money)"));
+        }
+        return money;
+    }
+
+    public int getExpenditure(){
+        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
+        Cursor cursor = database.query(TABLE, new String[]{"SUM(cost_money)"}, "cost_money<?", new String[]{"0"}, null, null, null);
+        int money = 0;
+        if(cursor!=null){
+            cursor.moveToNext();
+            money = cursor.getInt(cursor.getColumnIndex("SUM(cost_money)"));
+        }
+        return money;
+    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

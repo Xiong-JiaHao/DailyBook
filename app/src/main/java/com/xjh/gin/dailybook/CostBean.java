@@ -8,5 +8,5 @@ public class CostBean {
     public int id;
     public String costTitle;
     public String costDate;
-    public String costMoney;
+    public int costMoney;
 }
