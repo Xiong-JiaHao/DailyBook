@@ -150,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
             final TextView mAllmoney = viewDialog.findViewById(R.id.id_Allmoney);
             final TextView mIncome = viewDialog.findViewById(R.id.id_Income);
             final TextView mExpenditure = viewDialog.findViewById(R.id.id_Expenditure);
-            builder.setTitle("总金额");
             mAllmoney.setText(mDatabaseHelper.getAllMoney()+"元");
             mIncome.setText(mDatabaseHelper.getIncome()+"元");
             mExpenditure.setText(mDatabaseHelper.getExpenditure()+"元");
