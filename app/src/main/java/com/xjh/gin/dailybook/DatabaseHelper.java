@@ -16,6 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COST_DATE = "cost_date";
     public static final String COST_MONEY = "cost_money";
     public static final String TABLE = "Class_daily";
+    public static final String COST_ID = "id";
 
     public DatabaseHelper(Context context) {
         super(context, TABLE, null, 1);
@@ -33,14 +34,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void insertCost(CostBean costBean) {
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
         ContentValues contentValues = new ContentValues();
-        contentValues.put("id", costBean.id);
+        contentValues.put(COST_ID, costBean.id);
         contentValues.put(COST_TITLE, costBean.costTitle);
         contentValues.put(COST_DATE, costBean.costDate);
         contentValues.put(COST_MONEY, costBean.costMoney);
         database.insert(TABLE, null, contentValues);
     }
 
-    public Cursor getAllCostData() {
+    public Cursor getAllCostDate() {
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
         return database.query(TABLE, null, null, null, null, null, "cost_date " + "ASC");//null默认查询全部,ASC顺序排练
     }
@@ -53,6 +54,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteData(int id) {//删除
         SQLiteDatabase database = getWritableDatabase();//获得数据库对象
         database.delete(TABLE, "id like ?", new String[]{"" + id});//条件语句
+    }
+
+    public Cursor getCostDate(int id){
+        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
+        return database.query(TABLE, null, "id like ?", new String[]{"" + id}, null, null, null);
+    }
+
+    public int upDate(CostBean costBean){//更新数据
+        SQLiteDatabase database = getWritableDatabase();//获得数据库对象
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COST_TITLE, costBean.costTitle);
+        contentValues.put(COST_DATE, costBean.costDate);
+        contentValues.put(COST_MONEY, costBean.costMoney);
+        int num = database.update(TABLE,contentValues,"id like ?", new String[]{"" + costBean.id});
+        return num;
     }
 
     public int getAllMoney() {

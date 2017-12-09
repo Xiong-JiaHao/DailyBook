@@ -51,10 +51,19 @@ public class CostListAdapter extends BaseAdapter {
             viewHolder.mTvCostMoney = convertView.findViewById(R.id.tv_cost);
             viewHolder.id = convertView.findViewById(R.id.cost_id);
             viewHolder.delete = convertView.findViewById(R.id.delete_button);
+            viewHolder.update = convertView.findViewById(R.id.update_button);
             viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Log.e("TAGS", String.valueOf(viewHolder.id.getText()));
                     Intent intent = new Intent("MY_Delete");
+                    intent.putExtra("id", Integer.valueOf(String.valueOf(viewHolder.id.getText())));
+                    mContext.sendBroadcast(intent);
+                }
+            });
+            viewHolder.update.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent("MY_Update");
                     intent.putExtra("id", Integer.valueOf(String.valueOf(viewHolder.id.getText())));
                     mContext.sendBroadcast(intent);
                 }
@@ -76,6 +85,6 @@ public class CostListAdapter extends BaseAdapter {
         public TextView mTvCostTitle;
         public TextView mTvCostDate;
         public TextView mTvCostMoney;
-        View delete;
+        View delete,update;
     }
 }
