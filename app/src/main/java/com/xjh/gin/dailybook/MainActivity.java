@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AbsListView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -36,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
     private MyBroadCastReceiver myBroadCastReceiver;
     private int num;
 
+    private int CostbeanNum;
+    private int pageSize = 8;//每页的长度
+    private int pageNum;//页码
+    private int currentPage=1;//当前页码
+    private boolean isDivPage;//是否分页
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(myBroadCastReceiver, filter);
 
         initView();
+        initEvent();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,21 +123,68 @@ public class MainActivity extends AppCompatActivity {
         costList.setAdapter(mAdapter);
     }
 
-    private void initCostData() {
-        Cursor cursor = mDatabaseHelper.getAllCostDate();
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                CostBean costBean = new CostBean();
-                costBean.costTitle = cursor.getString(cursor.getColumnIndex("cost_title"));
-                costBean.costDate = cursor.getString(cursor.getColumnIndex("cost_date"));
-                costBean.costMoney = cursor.getInt(cursor.getColumnIndex("cost_money"));
-                costBean.id = cursor.getInt(cursor.getColumnIndex("id"));
-                num = Math.max(num, costBean.id);
-                mCostBeanList.add(costBean);
+    private void initEvent() {
+        costList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if(isDivPage&&AbsListView.OnScrollListener.SCROLL_STATE_IDLE==scrollState){
+                    if(currentPage<pageNum){
+                        currentPage++;
+                        Cursor cursor = mDatabaseHelper.getCostDateByLimit(currentPage,pageSize);
+                        if (cursor != null) {
+                            while (cursor.moveToNext()) {
+                                CostBean costBean = new CostBean();
+                                costBean.costTitle = cursor.getString(cursor.getColumnIndex("cost_title"));
+                                costBean.costDate = cursor.getString(cursor.getColumnIndex("cost_date"));
+                                costBean.costMoney = cursor.getInt(cursor.getColumnIndex("cost_money"));
+                                costBean.id = cursor.getInt(cursor.getColumnIndex("id"));
+                                mCostBeanList.add(costBean);
+                            }
+                        }
+                        cursor.close();
+                    }
+                }
             }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                isDivPage = ((firstVisibleItem+visibleItemCount)==totalItemCount);
+            }
+        });
+    }
+
+    private void initCostData() {
+        //全部获取
+//        Cursor cursor = mDatabaseHelper.getAllCostDate();
+//        if (cursor != null) {
+//            while (cursor.moveToNext()) {
+//                CostBean costBean = new CostBean();
+//                costBean.costTitle = cursor.getString(cursor.getColumnIndex("cost_title"));
+//                costBean.costDate = cursor.getString(cursor.getColumnIndex("cost_date"));
+//                costBean.costMoney = cursor.getInt(cursor.getColumnIndex("cost_money"));
+//                costBean.id = cursor.getInt(cursor.getColumnIndex("id"));
+//                mCostBeanList.add(costBean);
+//            }
+//        }
+//        cursor.close();
+        //分页获取
+        CostbeanNum = mDatabaseHelper.getDataCount();
+        pageNum = (int) Math.ceil(CostbeanNum/(double)pageSize);
+        Cursor cursor = mDatabaseHelper.getCostDateByLimit(1,pageSize);
+        if(currentPage==1){
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    CostBean costBean = new CostBean();
+                    costBean.costTitle = cursor.getString(cursor.getColumnIndex("cost_title"));
+                    costBean.costDate = cursor.getString(cursor.getColumnIndex("cost_date"));
+                    costBean.costMoney = cursor.getInt(cursor.getColumnIndex("cost_money"));
+                    costBean.id = cursor.getInt(cursor.getColumnIndex("id"));
+                    mCostBeanList.add(costBean);
+                }
+            }
+            cursor.close();
         }
-        cursor.close();
-        num++;
+        num=mDatabaseHelper.getMaxId()+1;
     }
 
     @Override
@@ -237,10 +292,9 @@ public class MainActivity extends AppCompatActivity {
                             costBean.costMoney *= cnt;
                             for (int i = 0; i < mCostBeanList.size(); i++) {
                                 if (mCostBeanList.get(i).id == updateid) {
-                                    if(mDatabaseHelper.upDate(costBean)==1){
-                                        mCostBeanList.remove(i);//更新list
-                                        mCostBeanList.add(i,costBean);
-                                    }
+                                    mDatabaseHelper.upDate(costBean);
+                                    mCostBeanList.remove(i);//更新list
+                                    mCostBeanList.add(i,costBean);
                                     break;
                                 }
                             }
