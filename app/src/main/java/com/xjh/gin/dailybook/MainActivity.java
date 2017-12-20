@@ -21,6 +21,7 @@ import android.widget.AbsListView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 final EditText title = viewDialog.findViewById(R.id.et_cost_title);
                 final EditText money = viewDialog.findViewById(R.id.et_cost_money);
                 final DatePicker date = viewDialog.findViewById(R.id.dp_cost_date);
+                final RadioGroup redio=viewDialog.findViewById(R.id.redio);
                 builder.setTitle("New Daily");
                 builder.setView(viewDialog);
                 //Log.e("TAGS","2");
@@ -79,21 +81,13 @@ public class MainActivity extends AppCompatActivity {
                         costBean.costTitle = title.getText().toString();
                         costBean.costDate = date.getYear() + "-" + (date.getMonth() + 1) + "-" + date.getDayOfMonth();
                         String str = money.getText().toString();
-                        int cnt = 1;
                         for (int i = 0; i < str.length(); i++) {
                             char c = str.charAt(i);
-                            if (c == '-') {
-                                cnt = -1;
-                                continue;
-                            } else if (c == '+') {
-                                cnt = 1;
-                                continue;
-                            }
-                            else {
-                                costBean.costMoney = costBean.costMoney * 10 + (str.charAt(i) - '0');
-                            }
+                            costBean.costMoney = costBean.costMoney * 10 + (c - '0');
                         }
-                        costBean.costMoney *= cnt;
+                        if(redio.getCheckedRadioButtonId()==R.id.expense){
+                            costBean.costMoney = -costBean.costMoney;
+                        }
                         costBean.id = num++;
                         mDatabaseHelper.insertCost(costBean);
                         mCostBeanList.add(costBean);
@@ -259,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                     final EditText money = viewDialog.findViewById(R.id.et_cost_money);
                     final DatePicker date = viewDialog.findViewById(R.id.dp_cost_date);
                     final TextView id = viewDialog.findViewById(R.id.tv_id);
+                    final RadioGroup redio = viewDialog.findViewById(R.id.redio);
                     id.setText(costBean.id+"");
                     title.setText(costBean.costTitle);
                     money.setText((costBean.costMoney > 0 ? "+" : "") + costBean.costMoney );
@@ -275,21 +270,13 @@ public class MainActivity extends AppCompatActivity {
                             costBean.costTitle = title.getText().toString();
                             costBean.costDate = date.getYear() + "-" + (date.getMonth() + 1) + "-" + date.getDayOfMonth();
                             String str = money.getText().toString();
-                            int cnt = 1;
                             for (int i = 0; i < str.length(); i++) {
                                 char c = str.charAt(i);
-                                if (c == '-') {
-                                    cnt = -1;
-                                    continue;
-                                } else if (c == '+') {
-                                    cnt = 1;
-                                    continue;
-                                }
-                                else {
-                                    costBean.costMoney = costBean.costMoney * 10 + (str.charAt(i) - '0');
-                                }
+                                costBean.costMoney = costBean.costMoney * 10 + (c - '0');
                             }
-                            costBean.costMoney *= cnt;
+                            if(redio.getCheckedRadioButtonId()==R.id.expense){
+                                costBean.costMoney = -costBean.costMoney;
+                            }
                             for (int i = 0; i < mCostBeanList.size(); i++) {
                                 if (mCostBeanList.get(i).id == updateid) {
                                     mDatabaseHelper.upDate(costBean);

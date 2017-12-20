@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp">
         <TextView
-            android:text="花费名目："
+            android:text="名目："
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <EditText
@@ -28,12 +28,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp">
         <TextView
-            android:text="花费金额："
+            android:text="金额："
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <EditText
             android:id="@+id/et_cost_money"
-            android:digits="0123456789+-"
+            android:digits="0123456789"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -42,8 +42,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp">
+        <RadioGroup
+            android:id="@+id/redio"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:checked="true"
+                android:id="@+id/expense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="花费"/>
+
+            <RadioButton
+                android:id="@+id/revenue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="收入"/>
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp">
         <TextView
-            android:text="消费时间："
+            android:text="时间："
             android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

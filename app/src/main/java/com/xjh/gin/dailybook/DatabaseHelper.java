@@ -182,3 +182,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return maxId;
     }
 }
+
+//SQLiteDatabase database = getWritableDatabase();//获得数据库对象
+//database.beginTransaction();
+//try{
+//    //do
+//    for(){
+//
+//    }
+//    database.setTransactionSuccessful();
+//}
+//catch (Exception e){
+//
+//}
+//finally {
+//    database.endTransaction();
+//}
